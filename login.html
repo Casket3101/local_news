@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ადგილობრივი ამბები</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body class="bg-light">
+
+    <div id="navbar-holder"></div>
+    <div class="container" id="flash-container"></div>
+
+    <main class="container py-3">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="card shadow-sm border-0 rounded-lg p-4 bg-white mt-5">
+                    <h2 class="text-center font-weight-bold mb-4 text-dark">🔐 სისტემაში შესვლა</h2>
+
+                    <form id="login-form" novalidate>
+                        <div class="form-group">
+                            <label class="form-control-label font-weight-bold text-secondary" for="email">ელ-ფოსტა</label>
+                            <input type="email" id="email" class="form-control form-control-lg" placeholder="შეიყვანეთ ელ-ფოსტა">
+                            <small class="text-danger font-weight-bold" id="email-error"></small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-control-label font-weight-bold text-secondary" for="password">პაროლი</label>
+                            <input type="password" id="password" class="form-control form-control-lg" placeholder="შეიყვანეთ პაროლი">
+                            <small class="text-danger font-weight-bold" id="password-error"></small>
+                        </div>
+
+                        <div class="form-group mt-4">
+                            <button type="submit" class="btn btn-success btn-block btn-lg shadow-sm">შესვლა</button>
+                        </div>
+                    </form>
+
+                    <div class="border-top pt-3 text-center mt-3">
+                        <small class="text-muted">
+                            ჯერ არ ხართ რეგისტრირებული? <a class="ml-1 font-weight-bold" href="register.html">შექმენით პროფილი</a>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="static/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (DB.currentUser()) { window.location.href = 'index.html'; return; }
+
+            document.getElementById('login-form').addEventListener('submit', e => {
+                e.preventDefault();
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+
+                document.getElementById('email-error').textContent = email ? '' : 'ეს ველი სავალდებულოა.';
+                document.getElementById('password-error').textContent = password ? '' : 'ეს ველი სავალდებულოა.';
+                if (!email || !password) return;
+
+                const user = DB.loadUsers().find(u => u.email === email);
+                if (user && user.password === password) {
+                    DB.login(user.email);
+                    flash(`მოგესალმებით, ${user.username}!`, 'success');
+                    window.location.href = 'index.html';
+                } else {
+                    flash('არასწორი ელ-ფოსტა ან პაროლი!', 'danger');
+                    renderFlashes();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

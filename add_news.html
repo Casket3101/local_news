@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ადგილობრივი ამბები</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body class="bg-light">
+
+    <div id="navbar-holder"></div>
+    <div class="container" id="flash-container"></div>
+
+    <main class="container py-3">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-sm border-0 rounded-lg p-4 bg-white mt-4">
+                    <h2 class="text-center font-weight-bold mb-2 text-dark">➕ სიახლის დამატება</h2>
+                    <p class="text-center text-muted mb-4">გაუზიარეთ მნიშვნელოვანი ამბავი თქვენს ადგილობრივ საზოგადოებას</p>
+
+                    <form id="news-form" novalidate>
+                        <div class="form-group">
+                            <label class="form-control-label font-weight-bold text-secondary" for="title">სიახლის სათაური</label>
+                            <input type="text" id="title" maxlength="100" class="form-control form-control-lg" placeholder="შეიყვანეთ მოკლე და გასაგები სათაური">
+                            <small class="text-danger font-weight-bold" id="title-error"></small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-control-label font-weight-bold text-secondary" for="category">კატეგორია</label>
+                            <select id="category" class="form-control form-control-lg">
+                                <option value="განათლება">განათლება</option>
+                                <option value="კულტურა">კულტურა</option>
+                                <option value="სპორტი">სპორტი</option>
+                                <option value="საზოგადოება">საზოგადოება</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-control-label font-weight-bold text-secondary" for="content">კონტენტი / ტექსტი</label>
+                            <textarea id="content" rows="6" class="form-control form-control-lg" placeholder="დაწერეთ დეტალურად რა მოხდა..."></textarea>
+                            <small class="text-danger font-weight-bold" id="content-error"></small>
+                        </div>
+
+                        <div class="form-group mt-4">
+                            <button type="submit" class="btn btn-primary btn-block btn-lg shadow-sm">გამოქვეყნება (გაიგზავნება დასამტკიცებლად)</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="static/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!requireLogin()) return;
+
+            document.getElementById('news-form').addEventListener('submit', e => {
+                e.preventDefault();
+                const title = document.getElementById('title').value.trim();
+                const category = document.getElementById('category').value;
+                const content = document.getElementById('content').value.trim();
+
+                document.getElementById('title-error').textContent = title ? '' : 'ეს ველი სავალდებულოა.';
+                document.getElementById('content-error').textContent = content ? '' : 'ეს ველი სავალდებულოა.';
+                if (!title || !content) return;
+
+                const news = DB.loadNews();
+                const user = DB.currentUser();
+                news.push({
+                    id: Date.now(),
+                    title,
+                    content,
+                    category,
+                    datePosted: new Date().toISOString(),
+                    isApproved: false,
+                    authorUsername: user.username
+                });
+                DB.saveNews(news);
+                flash('თქვენი სიახლე გაიგზავნა! ის გამოჩნდება მას შემდეგ, რაც ადმინისტრატორი დაამტკიცებს.', 'warning');
+                window.location.href = 'index.html';
+            });
+        });
+    </script>
+</body>
+</html>

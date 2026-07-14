@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="bg-white border shadow-sm rounded p-4 mb-4">
+    <h2 class="font-weight-bold text-dark mb-1">🛠️ ადმინისტრატორის პანელი</h2>
+    <p class="text-muted">აქ შეგიძლიათ გადახედოთ მომხმარებლების მიერ გამოგზავნილ სიახლეებს და დაამტკიცოთ ისინი.</p>
+</div>
+
+<h4 class="mb-4 font-weight-bold text-warning">⏳ დასამტკიცებელი პოსტები:</h4>
+
+<div class="row">
+    {% if news_list %}
+        {% for news in news_list %}
+            <div class="col-12 mb-3">
+                <div class="card shadow-sm border-left border-warning">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge badge-warning text-dark px-3 py-1 font-weight-bold">{{ news.category }}</span>
+                            <small class="text-muted">ავტორი: <strong>{{ news.author.username }}</strong> | 📅 {{ news.date_posted.strftime('%Y-%m-%d %H:%M') }}</small>
+                        </div>
+                        <h4 class="font-weight-bold text-dark">{{ news.title }}</h4>
+                        <p class="text-secondary">{{ news.content }}</p>
+                        <hr>
+                        <a href="{{ url_for('approve_news', news_id=news.id) }}" class="btn btn-success px-4 font-weight-bold shadow-sm">✓ დამტკიცება და გამოქვეყნება</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <div class="alert alert-success text-center py-5 rounded-lg shadow-sm" role="alert">
+                <h5 class="mb-0 font-weight-bold">🎉 ყველა პოსტი განხილულია! ახალი მოთხოვნები არ არის.</h5>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

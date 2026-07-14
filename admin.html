@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ადგილობრივი ამბები</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body class="bg-light">
+
+    <div id="navbar-holder"></div>
+    <div class="container" id="flash-container"></div>
+
+    <main class="container py-3">
+        <div class="bg-white border shadow-sm rounded p-4 mb-4">
+            <h2 class="font-weight-bold text-dark mb-1">🛠️ ადმინისტრატორის პანელი</h2>
+            <p class="text-muted">აქ შეგიძლიათ გადახედოთ მომხმარებლების მიერ გამოგზავნილ სიახლეებს და დაამტკიცოთ ისინი.</p>
+        </div>
+
+        <h4 class="mb-4 font-weight-bold text-warning">⏳ დასამტკიცებელი პოსტები:</h4>
+
+        <div class="row" id="pending-list"></div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="static/app.js"></script>
+    <script>
+        function approveNews(id) {
+            const news = DB.loadNews();
+            const post = news.find(n => n.id === id);
+            if (post) {
+                post.isApproved = true;
+                DB.saveNews(news);
+                flash('სიახლე წარმატებით დამტკიცდა და გამოქვეყნდა!', 'success');
+                window.location.reload();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!requireAdmin()) return;
+
+            const pending = DB.loadNews().filter(n => !n.isApproved);
+            const list = document.getElementById('pending-list');
+
+            if (pending.length === 0) {
+                list.innerHTML = `
+                <div class="col-12">
+                    <div class="alert alert-success text-center py-5 rounded-lg shadow-sm" role="alert">
+                        <h5 class="mb-0 font-weight-bold">🎉 ყველა პოსტი განხილულია! ახალი მოთხოვნები არ არის.</h5>
+                    </div>
+                </div>`;
+                return;
+            }
+
+            list.innerHTML = pending.map(news => `
+                <div class="col-12 mb-3">
+                    <div class="card shadow-sm border-left border-warning">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge badge-warning text-dark px-3 py-1 font-weight-bold">${escapeHtml(news.category)}</span>
+                                <small class="text-muted">ავტორი: <strong>${escapeHtml(news.authorUsername)}</strong> | 📅 ${formatDate(news.datePosted, true)}</small>
+                            </div>
+                            <h4 class="font-weight-bold text-dark">${escapeHtml(news.title)}</h4>
+                            <p class="text-secondary">${escapeHtml(news.content)}</p>
+                            <hr>
+                            <button onclick="approveNews(${news.id})" class="btn btn-success px-4 font-weight-bold shadow-sm">✓ დამტკიცება და გამოქვეყნება</button>
+                        </div>
+                    </div>
+                </div>`).join('');
+        });
+    </script>
+</body>
+</html>

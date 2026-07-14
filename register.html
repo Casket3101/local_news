@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ადგილობრივი ამბები</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body class="bg-light">
+
+    <div id="navbar-holder"></div>
+    <div class="container" id="flash-container"></div>
+
+    <main class="container py-3">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow-sm border-0 rounded-lg p-4 bg-white mt-4">
+                    <h2 class="text-center font-weight-bold mb-4 text-dark">📝 რეგისტრაცია</h2>
+
+                    <form id="register-form" novalidate>
+                        <div class="form-group">
+                            <label class="form-control-label font-weight-bold text-secondary" for="username">მომხმარებლის სახელი</label>
+                            <input type="text" id="username" class="form-control form-control-lg" placeholder="აირჩიეთ იუზერნეიმი">
+                            <small class="text-danger font-weight-bold" id="username-error"></small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-control-label font-weight-bold text-secondary" for="email">ელ-ფოსტა</label>
+                            <input type="email" id="email" class="form-control form-control-lg" placeholder="მაგ: name@example.com">
+                            <small class="text-danger font-weight-bold" id="email-error"></small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-control-label font-weight-bold text-secondary" for="password">პაროლი</label>
+                            <input type="password" id="password" class="form-control form-control-lg" placeholder="მინიმუმ 6 სიმბოლო">
+                            <small class="text-danger font-weight-bold" id="password-error"></small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-control-label font-weight-bold text-secondary" for="confirm-password">გაიმეორეთ პაროლი</label>
+                            <input type="password" id="confirm-password" class="form-control form-control-lg" placeholder="გაიმეორეთ პაროლი">
+                            <small class="text-danger font-weight-bold" id="confirm-password-error"></small>
+                        </div>
+
+                        <div class="form-group mt-4">
+                            <button type="submit" class="btn btn-primary btn-block btn-lg shadow-sm">რეგისტრაცია</button>
+                        </div>
+                    </form>
+
+                    <div class="border-top pt-3 text-center mt-3">
+                        <small class="text-muted">
+                            უკვე გაქვთ პროფილი? <a class="ml-1 font-weight-bold" href="login.html">შედით აქ</a>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="static/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (DB.currentUser()) { window.location.href = 'index.html'; return; }
+
+            document.getElementById('register-form').addEventListener('submit', e => {
+                e.preventDefault();
+                const username = document.getElementById('username').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+                const confirm = document.getElementById('confirm-password').value;
+
+                let valid = true;
+                const setError = (id, msg) => {
+                    document.getElementById(id + '-error').textContent = msg;
+                    if (msg) valid = false;
+                };
+
+                setError('username', username.length >= 4 && username.length <= 20 ? '' : 'სახელი უნდა იყოს 4-დან 20 სიმბოლომდე.');
+                setError('email', /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? '' : 'შეიყვანეთ სწორი ელ-ფოსტა.');
+                setError('password', password.length >= 6 ? '' : 'პაროლი უნდა იყოს მინიმუმ 6 სიმბოლო.');
+                setError('confirm-password', confirm === password ? '' : 'პაროლები არ ემთხვევა.');
+                if (!valid) return;
+
+                const users = DB.loadUsers();
+                if (users.some(u => u.email === email || u.username === username)) {
+                    flash('მომხმარებელი ამ სახელით ან ელ-ფოსტით უკვე არსებობს!', 'danger');
+                    renderFlashes();
+                    return;
+                }
+
+                users.push({ username, email, password, isAdmin: false });
+                DB.saveUsers(users);
+                flash('რეგისტრაცია წარმატებით გაიარეთ! შეგიძლიათ შეხვიდეთ.', 'success');
+                window.location.href = 'login.html';
+            });
+        });
+    </script>
+</body>
+</html>

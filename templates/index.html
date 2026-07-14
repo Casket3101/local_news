@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="jumbotron text-center bg-white border shadow-sm rounded p-5 mb-5">
+    <h1 class="display-4 font-weight-bold text-dark">🏡 ადგილობრივი ამბები</h1>
+    <p class="lead font-italic text-primary mt-2">„ადგილობრივი ამბები — ახლოს შენთან!“</p>
+    <hr class="my-4">
+    <p class="text-muted">პლატფორმა, სადაც ყველას შეუძლია გააზიაროს უბნის, სკოლის, კულტურისა თუ სპორტის მნიშვნელოვანი სიახლეები.</p>
+    {% if not current_user.is_authenticated %}
+        <a class="btn btn-primary btn-lg px-4" href="{{ url_for('register') }}" role="button">შემოგვიერთდი</a>
+    {% endif %}
+</div>
+
+<h3 class="mb-4 font-weight-bold text-secondary">📰 აქტუალური სიახლეები</h3>
+
+<div class="row">
+    {% if news_list %}
+        {% for news in news_list %}
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 shadow-sm border-0 rounded-lg">
+                    <div class="card-body d-flex flex-column p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="badge badge-pill badge-primary px-3 py-2">{{ news.category }}</span>
+                            <small class="text-muted">📅 {{ news.date_posted.strftime('%Y-%m-%d') }}</small>
+                        </div>
+                        
+                        <h4 class="card-title font-weight-bold text-dark mb-2">{{ news.title }}</h4>
+                        <p class="card-text text-secondary flex-grow-1">{{ news.content }}</p>
+                        
+                        <hr class="my-3">
+                        
+                        <div class="d-flex align-items-center justify-content-between">
+                            <span class="text-muted small">✍️ გამოაქვეყნა: <strong>{{ news.author.username }}</strong></span>
+                            
+                            {% if current_user.is_authenticated %}
+                                <form action="{{ url_for('delete_news', news_id=news.id) }}" method="POST" onsubmit="return confirm('ნამდვილად გსურთ ამ სიახლის წაშლა?');" style="display:inline;">
+                                    <button type="submit" class="btn btn-danger btn-sm font-weight-bold rounded-pill px-3 shadow-sm">
+                                        🗑️ წაშლა
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <div class="alert alert-light text-center border py-5 rounded-lg" role="alert">
+                <h5 class="text-muted mb-0">ამ დროისთვის სიახლეები არ არის. გახდით პირველი და გააზიარეთ ამბავი!</h5>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
