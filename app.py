@@ -2,7 +2,7 @@ from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from models import db, User, News
 from forms import RegistrationForm, LoginForm, NewsForm
-
+from flask import abort
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'tbc_techschool_secret_key_123'
@@ -104,6 +104,8 @@ def approve_news(news_id):
 @login_required
 def delete_news(news_id):
     post = News.query.get_or_404(news_id)
+    if post.author != current_user and current_user.username != 'Admin':
+        abort(403)  
     db.session.delete(post)
     db.session.commit()
     flash('სიახლე წარმატებით წაიშალა!', 'success')

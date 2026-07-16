@@ -1,6 +1,3 @@
-// ადგილობრივი ამბები — სტატიკური ვერსია GitHub Pages-ისთვის.
-// მონაცემები ინახება ბრაუზერის localStorage-ში (server-ის და ბაზის ნაცვლად).
-
 const DB = {
     loadUsers() {
         return JSON.parse(localStorage.getItem('ln_users') || '[]');
@@ -27,7 +24,6 @@ const DB = {
     }
 };
 
-// პირველი გაშვებისას შეიქმნას ადმინის ანგარიში (app.py-ის ანალოგი)
 (function seed() {
     const users = DB.loadUsers();
     if (!users.some(u => u.email === 'admin@news.ge')) {
@@ -36,7 +32,6 @@ const DB = {
     }
 })();
 
-// flash შეტყობინებები გვერდებს შორის (Flask-ის flash()-ის ანალოგი)
 function flash(message, category) {
     const queue = JSON.parse(sessionStorage.getItem('ln_flash') || '[]');
     queue.push({ message, category });
@@ -126,7 +121,6 @@ function renderNavbar() {
     }
 }
 
-// გვერდი მოითხოვს ავტორიზაციას (login_required-ის ანალოგი)
 function requireLogin() {
     if (!DB.currentUser()) {
         flash('ამ გვერდის სანახავად გაიარეთ ავტორიზაცია.', 'info');
